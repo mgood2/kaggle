@@ -88,14 +88,12 @@ def load_digits(n_class=10):
         >>> pl.show() #doctest: +SKIP
     """
     module_path = dirname(__file__)
-    data = np.loadtxt(join(module_path, 'data', 'digits.csv.gz'),
+    data = np.loadtxt(join(module_path, 'data', 'train.csv'),
                       delimiter=',')
-    with open(join(module_path, 'descr', 'digits.rst')) as f:
-        descr = f.read()
-    target = data[:, -1]
-    flat_data = data[:, :-1]
+    target = data[:, 1]
+    flat_data = data[:, -1:]
     images = flat_data.view()
-    images.shape = (-1, 8, 8)
+    images.shape = (-1, 28, 28)
 
     if n_class < 10:
         idx = target < n_class

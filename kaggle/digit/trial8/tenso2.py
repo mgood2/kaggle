@@ -24,10 +24,10 @@ import tensorflow as tf
 # settings
 LEARNING_RATE = 1e-4
 # set to 20000 on local environment to get 0.99 accuracy
-TRAINING_ITERATIONS = 40000        
+TRAINING_ITERATIONS = 20000        
     
 DROPOUT = 0.5
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 
 # set to 0 to train on all available data
 VALIDATION_SIZE = 2000
@@ -183,8 +183,8 @@ layer1 = tf.reshape(layer1, (-1, image_height*4, image_width*8))
 # 
 # Because the image is down-sampled by pooling to 14x14 size second convolutional layer picks up more general characteristics of the images. Filters cover more space of the picture. Therefore, it is adjusted for more generic features while the first layer finds smaller details.
 # second convolutional layer
-W_conv2 = weight_variable([5, 5, 32, 128])
-b_conv2 = bias_variable([128])
+W_conv2 = weight_variable([5, 5, 32, 64])
+b_conv2 = bias_variable([64])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 #print (h_conv2.get_shape()) # => (40000, 14,14, 64)
@@ -201,11 +201,11 @@ layer2 = tf.transpose(layer2, (0, 3, 1, 4,2))
 layer2 = tf.reshape(layer2, (-1, 14*4, 14*16)) 
 # Now that the image size is reduced to 7x7, we add a [fully-connected layer](https://en.wikipedia.org/wiki/Convolutional_neural_network#Fully_Connected_layer) with 1024 neurones to allow processing on the entire image (each of the neurons of the fully connected layer is connected to all the activations/outpus of the previous layer)
 # densely connected layer
-W_fc1 = weight_variable([7 * 7 * 128, 1024])
+W_fc1 = weight_variable([7 * 7 * 64, 1024])
 b_fc1 = bias_variable([1024])
 
 # (40000, 7, 7, 64) => (40000, 3136)
-h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*128])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
 
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 #print (h_fc1.get_shape()) # => (40000, 1024)

@@ -2,7 +2,8 @@
 # This content may be pasted into a cookies.txt file and used by wget
 # Example:  wget -x --load-cookies cookies.txt https://www.kaggle.com/c/digit-recognizer/data
 #
-www.kaggle.com	FALSE	/	FALSE	0	__RequestVerificationToken	mLTFRa0GwT4LOWlTdQ1dI9tI1Q10j8HmF452mQbrnn1-PlvN9ZPR5m2xjp5odQLQt0mIisIFdAi4pYTmocoHAW9u5S01
+www.kaggle.com	FALSE	/	FALSE	0	__RequestVerificationToken	qVylel1wCg-pGsJoVy1SkG7VocFOxk7O0uNCdUos0XXk35Mtn_FUc9fgJ8YUxUt7UIjU4dgKc6075iEnEUJtNdMefkY1
+
 .kaggle.com	TRUE	/	FALSE	1468214863	__utmt	1
 .kaggle.com	TRUE	/	FALSE	1468819064	intercom-visitor-semaphore-koj6gxx6	1
 .kaggle.com	TRUE	/	TRUE	1531286370.067676	.ASPXAUTH	AA32919F845ADE6C441E300289E01C3E2BD7B690BE84051B6C845D6931248C2FBFC1F3400C4E1D106B314852D3DD334883EF1179903798EFBAF4B51D0D8CAD46F8F2131405E58AE56FB36A224CFA79E70ED74D34

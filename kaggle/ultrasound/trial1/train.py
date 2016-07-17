@@ -160,7 +160,7 @@ def conv_net(x, weights, biases, dropout):
     # Reshape conv9 output to fit fully connected layer input
     fc1 = tf.reshape(conv9, [-1, weights['wd1'].get_shape().as_list()[0]])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
-    fc1 = tf.nn.relu(fc1)
+    fc1 = tf.sigmoid(fc1)
     # Apply Dropout
     fc1 = tf.nn.dropout(fc1, dropout)
 
@@ -185,7 +185,7 @@ weights = {
     # fully connected, 4*5*64 inputs, 1024 outputs
     'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
     # 1024 inputs, 10 outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([1024, n_classes]))
+    'out': tf.Variable(tf.random_normal([1024, 1]))
 }
 outputshape = {
     'os6': [batch_size, 2, 2, 256],

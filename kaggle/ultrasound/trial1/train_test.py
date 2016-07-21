@@ -24,6 +24,8 @@ def train_and_predict():
     imgs_train, imgs_mask_train = load_train_data()
     print('before preprocess size: ')
     print('imgs_train : %s' %imgs_train.size)
+    print('imgs_train shape[0] : %s' %imgs_train.shape[0])
+    print('imgs_train shape[1] : %s' %imgs_train.shape[1])
     print('imgs_mask_train : %s' %imgs_mask_train.size)
 
 

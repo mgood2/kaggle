@@ -150,7 +150,7 @@ biases = {
 pred = conv_net(x, weights, biases, keep_prob)
 
 # Define loss and optimizer
-cost = dice_coef_loss(y, pred)
+cost = dice_coef_loss(y_, pred)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
 

@@ -10,15 +10,28 @@ from data import load_train_data, load_test_data
 
 import tensorflow as tf
 
+def preprocess(imgs):
+    imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)
+    for i in range(imgs.shape[0]):
+        imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows), interpolation=cv2.INTER_CUBIC)
+    return imgs_p
+
+
 def train_and_predict():
     print('-'*30)
     print('Loading and preprocessing train data...')
     print('-'*30)
     imgs_train, imgs_mask_train = load_train_data()
+    print('before preprocess size: ')
+    print('imgs_train : %s' %imgs_train.size)
+    print('imgs_mask_train : %s' %imgs_mask_train.size)
+
 
     imgs_train = preprocess(imgs_train)
     imgs_mask_train = preprocess(imgs_mask_train)
-
+    print('after preprocess size: ')
+        print('imgs_train : %s' %imgs_train.size)
+        print('imgs_mask_train : %s' %imgs_mask_train.size)
     imgs_train = imgs_train.astype('float32')
     mean = np.mean(imgs_train)  # mean for data centering
     std = np.std(imgs_train)  # std for data normalization
@@ -30,6 +43,7 @@ def train_and_predict():
     imgs_mask_train /= 255.  # scale masks to [0, 1]
 
 
+    """
     print('-'*30)
     print('Loading and preprocessing test data...')
     print('-'*30)
@@ -39,7 +53,7 @@ def train_and_predict():
     imgs_test = imgs_test.astype('float32')
     imgs_test -= mean
     imgs_test /= std
-
+    """
 
 
 if __name__ == '__main__':

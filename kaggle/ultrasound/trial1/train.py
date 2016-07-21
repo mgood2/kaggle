@@ -280,7 +280,7 @@ for i in range(TRAINING_ITERATIONS):
         if i%(display_step*10) == 0 and i:
             display_step *= 10
     # train on batch
-    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
+    sess.run(optimizer, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
 # After training is done, it's good to check accuracy on data that wasn't used in training.
 # check final accuracy on validation set
 if(VALIDATION_SIZE):

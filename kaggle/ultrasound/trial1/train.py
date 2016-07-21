@@ -2,79 +2,17 @@ from __future__ import print_function
 
 import cv2
 import numpy as np
-from keras.models import Model
-from keras.layers import Input, merge, Convolution2D, MaxPooling2D, UpSampling2D
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras import backend as K
+import tensorflow as tf
 
 from data import load_train_data, load_test_data
 
-img_rows = 64
-img_cols = 80
 
-smooth = 1.
-
-"""
-def dice_coef(y_true, y_pred):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
-
-
-def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
-
-
-def get_unet():
-    inputs = Input((1, img_rows, img_cols))
-    conv1 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(inputs)
-    conv1 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(conv1)
-    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-
-    conv2 = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(pool1)
-    conv2 = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(conv2)
-    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-
-    conv3 = Convolution2D(128, 3, 3, activation='relu', border_mode='same')(pool2)
-    conv3 = Convolution2D(128, 3, 3, activation='relu', border_mode='same')(conv3)
-    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-
-    conv4 = Convolution2D(256, 3, 3, activation='relu', border_mode='same')(pool3)
-    conv4 = Convolution2D(256, 3, 3, activation='relu', border_mode='same')(conv4)
-    pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
-
-    conv5 = Convolution2D(512, 3, 3, activation='relu', border_mode='same')(pool4)
-    conv5 = Convolution2D(512, 3, 3, activation='relu', border_mode='same')(conv5)
-
-    up6 = merge([UpSampling2D(size=(2, 2))(conv5), conv4], mode='concat', concat_axis=1)
-    conv6 = Convolution2D(256, 3, 3, activation='relu', border_mode='same')(up6)
-    conv6 = Convolution2D(256, 3, 3, activation='relu', border_mode='same')(conv6)
-
-    up7 = merge([UpSampling2D(size=(2, 2))(conv6), conv3], mode='concat', concat_axis=1)
-    conv7 = Convolution2D(128, 3, 3, activation='relu', border_mode='same')(up7)
-    conv7 = Convolution2D(128, 3, 3, activation='relu', border_mode='same')(conv7)
-
-    up8 = merge([UpSampling2D(size=(2, 2))(conv7), conv2], mode='concat', concat_axis=1)
-    conv8 = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(up8)
-    conv8 = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(conv8)
-
-    up9 = merge([UpSampling2D(size=(2, 2))(conv8), conv1], mode='concat', concat_axis=1)
-    conv9 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(up9)
-    conv9 = Convolution2D(32, 3, 3, activation='relu', border_mode='same')(conv9)
-
-    conv10 = Convolution2D(1, 1, 1, activation='sigmoid')(conv9)
-
-    model = Model(input=inputs, output=conv10)
-
-    model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
-    return model
-"""
-
-#in tensorflow
 
 import tensorflow as tf
+
+
+
+#in tensorflow
 
 def dice_coef(y_true, y_pred):
     y_true_f = tf.reshape(y_true, [-1])
@@ -85,22 +23,6 @@ def dice_coef(y_true, y_pred):
 
 def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
-
-# Parameters
-learning_rate = 0.001
-training_iters = 200000
-batch_size = 128
-display_step = 10
-
-# Network Parameters
-n_input = 784 # MNIST data input (img shape: 28*28)
-n_classes = 10 # MNIST total classes (0-9 digits)
-dropout = 0.75 # Dropout, probability to keep units
-
-# tf Graph input
-x = tf.placeholder(tf.float32, [None, n_input])
-y = tf.placeholder(tf.float32, [None, n_classes])
-keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 
 # Create some wrappers for simplicity
@@ -123,17 +45,17 @@ def conv2d_transpose(x, W, OS, strides=1):
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
     x = tf.reshape(x, shape=[-1, img_rows, img_cols, 1])
-    
+
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
     conv1 = maxpool2d(conv1, k=2)
-    
+
     # Convolution Layer
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
     conv2 = maxpool2d(conv2, k=2)
-    
+
     # Convolution Layer
     conv3 = conv2d(conv2, weights['wc3'], biases['bc3'])
     # Max Pooling (down-sampling)
@@ -143,7 +65,7 @@ def conv_net(x, weights, biases, dropout):
     conv4 = conv2d(conv3, weights['wc4'], biases['bc4'])
     # Max Pooling (down-sampling)
     conv4 = maxpool2d(conv4, k=2)
-    
+
     # Convolution Layer
     conv5 = conv2d(conv4, weights['wc5'], biases['bc5'])
 
@@ -155,7 +77,7 @@ def conv_net(x, weights, biases, dropout):
     conv8 = conv2d_transpose(conv7, weights['wc3'], outputshape['os8'])
     # Deconolution Layer
     conv9 = conv2d_transpose(conv8, weights['wc2'], outputshape['os9'])
-    
+
     # Fully connected layer
     # Reshape conv9 output to fit fully connected layer input
     fc1 = tf.reshape(conv9, [-1, weights['wd1'].get_shape().as_list()[0]])
@@ -210,40 +132,42 @@ pred = conv_net(x, weights, biases, keep_prob)
 cost = dice_coef_loss(y, pred)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
-    
+
 # Evaluate model
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-# Initializing the variables
-init = tf.initialize_all_variables()
 
-# Launch the graph
-with tf.Session() as sess:
-    sess.run(init)
-    step = 1
-    # Keep training until reach max iterations
-    while step * batch_size < training_iters:
-        batch_x, batch_y = mnist.train.next_batch(batch_size)
-        # Run optimization op (backprop)
-        sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
-                                       keep_prob: dropout})
-        if step % display_step == 0:
-            # Calculate batch loss and accuracy
-            loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x,
-                                                              y: batch_y,
-                                                              keep_prob: 1.})
-            print "Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
-                  "{:.6f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.5f}".format(acc)
-        step += 1
-    print "Optimization Finished!"
 
-    # Calculate accuracy for 256 mnist test images
-    print "Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={x: mnist.test.images[:256],
-                                      y: mnist.test.labels[:256],
-                                      keep_prob: 1.})
+
+
+# serve data by batches
+
+def next_batch(batch_size):
+
+    global imgs_train
+    global imgs_mask_train
+    global index_in_epoch
+    global epochs_completed
+
+    start = index_in_epoch
+    index_in_epoch += batch_size
+
+    # when all trainig data have been already used, it is reorder randomly
+    if index_in_epoch > num_examples:
+        # finished epoch
+        epochs_completed += 1
+        # shuffle the data
+        perm = np.arange(num_examples)
+        np.random.shuffle(perm)
+        imgs_train = imgs_train[perm]
+        imgs_mask_train = imgs_mask_train[perm]
+        # start next epoch
+        start = 0
+        index_in_epoch = batch_size
+        assert batch_size <= num_examples
+    end = index_in_epoch
+    return imgs_train[start:end], imgs_mask_train[start:end]
 
 
 
@@ -255,6 +179,32 @@ def preprocess(imgs):
 
 
 def train_and_predict():
+
+    img_rows = 64
+    img_cols = 80
+
+    smooth = 1.
+
+    # Parameters
+    learning_rate = 0.001
+    training_iters = 20000
+    batch_size = 128
+    display_step = 10
+
+    # Network Parameters
+    n_input = 784 # MNIST data input (img shape: 28*28)
+    n_classes = 10 # MNIST total classes (0-9 digits)
+    dropout = 0.75 # Dropout, probability to keep units
+
+    # tf Graph input
+    x = tf.placeholder(tf.float32, [None, n_input])
+    y_ = tf.placeholder(tf.float32, [None, n_classes])
+    keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+
+
+
+
+
     print('-'*30)
     print('Loading and preprocessing train data...')
     print('-'*30)
@@ -277,13 +227,67 @@ def train_and_predict():
     print('Creating and compiling model...')
     print('-'*30)
     model = get_unet()
-    model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', save_best_only=True)
+    #model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', save_best_only=True)
+    # *Finally neural network structure is defined and TensorFlow graph is ready for training.*
+    # ## Train, validate and predict
+    # #### Helper functions
+    #
+    # Ideally, we should use all data for every step of the training, but that's expensive. So, instead, we use small "batches" of random data.
+    #
+    # This method is called [stochastic training](https://en.wikipedia.org/wiki/Stochastic_gradient_descent). It is cheaper, faster and gives much of the same result.
+    epochs_completed = 0
+    index_in_epoch = 0
+    num_examples = imgs_train.shape[0]
+
 
     print('-'*30)
     print('Fitting model...')
     print('-'*30)
-    model.fit(imgs_train, imgs_mask_train, batch_size=32, nb_epoch=20, verbose=1, shuffle=True,
-              callbacks=[model_checkpoint])
+    init = tf.initialize_all_variables()
+    sess = tf.InteractiveSession()
+
+    sess.run(init)
+    train_accuracies = []
+    validation_accuracies = []
+    x_range = []
+
+    display_step=1
+
+    for i in range(TRAINING_ITERATIONS):
+
+        #get new batch
+        batch_xs, batch_ys = next_batch(BATCH_SIZE)
+
+        # check progress on every 1st,2nd,...,10th,20th,...,100th... step
+        if i%display_step == 0 or (i+1) == TRAINING_ITERATIONS:
+
+            train_accuracy = accuracy.eval(feed_dict={x:batch_xs,
+                                                      y_: batch_ys,
+                                                      keep_prob: 1.0})
+            if(VALIDATION_SIZE):
+                validation_accuracy = accuracy.eval(feed_dict={ x: validation_images[0:BATCH_SIZE],
+                                                                y_: validation_labels[0:BATCH_SIZE],
+                                                                keep_prob: 1.0})
+                print('training_accuracy / validation_accuracy => %.2f / %.2f for step %d'%(train_accuracy, validation_accuracy, i))
+
+                validation_accuracies.append(validation_accuracy)
+                x_range.append(i)
+            else:
+                 print('training_accuracy => %.4f for step %d'%(train_accuracy, i))
+            train_accuracies.append(train_accuracy)
+
+            # increase display_step
+            if i%(display_step*10) == 0 and i:
+                display_step *= 10
+        # train on batch
+        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
+    # After training is done, it's good to check accuracy on data that wasn't used in training.
+    # check final accuracy on validation set
+    if(VALIDATION_SIZE):
+        validation_accuracy = accuracy.eval(feed_dict={x: validation_images,
+                                                       y_: validation_labels,
+                                                       keep_prob: 1.0})
+        print('validation_accuracy => %.4f'%validation_accuracy)
 
     print('-'*30)
     print('Loading and preprocessing test data...')

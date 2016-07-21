@@ -81,7 +81,7 @@ def maxpool2d(x, k=2):
     return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
                           padding='SAME')
 
-def conv2d_transpose(x, W, OS, strides=1):
+def conv2d_transpose(x, W, b, OS, strides=1):
     x = tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
@@ -128,23 +128,23 @@ def conv_net(x, weights, biases, dropout):
 
 
     # Deconolution Layer
-    conv6 = conv2d_transpose(conv5, weights['wc5'], outputshape['os6'])
+    conv6 = conv2d_transpose(conv5, weights['wc5'],  biases['bc4'], outputshape['os6'])
     # Pooling Up-sampling
-    pool6 = conv2d_transpose(conv6, weights['pl6'], outputshape['up6'], strides=2)
+    pool6 = conv2d_transpose(conv6, weights['pl6'],  biases['bc4'],  outputshape['up6'], strides=2)
     # Deconolution Layer
-    conv7 = conv2d_transpose(pool6, weights['wc4'], outputshape['os7'])
+    conv7 = conv2d_transpose(pool6, weights['wc4'],  biases['bc3'], outputshape['os7'])
     # Pooling Up-sampling
-    pool7 = conv2d_transpose(conv7, weights['pl7'], outputshape['up7'], strides=2)
+    pool7 = conv2d_transpose(conv7, weights['pl7'],  biases['bc3'], outputshape['up7'], strides=2)
     # Deconolution Layer
-    conv8 = conv2d_transpose(pool7, weights['wc3'], outputshape['os8'])
+    conv8 = conv2d_transpose(pool7, weights['wc3'],  biases['bc2'], outputshape['os8'])
     # Pooling Up-sampling
-    pool8 = conv2d_transpose(conv8, weights['pl8'], outputshape['up8'], strides=2)
+    pool8 = conv2d_transpose(conv8, weights['pl8'],  biases['bc2'], outputshape['up8'], strides=2)
     # Deconolution Layer
-    conv9 = conv2d_transpose(pool8, weights['wc2'], outputshape['os9'])
+    conv9 = conv2d_transpose(pool8, weights['wc2'],  biases['bc1'], outputshape['os9'])
     # Pooling Up-sampling
-    pool9 = conv2d_transpose(conv9, weights['pl9'], outputshape['up9'], strides=2)
+    pool9 = conv2d_transpose(conv9, weights['pl9'],  biases['bc1'], outputshape['up9'], strides=2)
 
-    conv10 = conv2d_transpose(pool9, weights['wc1'], outputshape['os10'])
+    conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
 
 
     out = reshape(conv10,[-1, 1, img_rows, img_cols])
@@ -179,6 +179,7 @@ outputshape = {
     'os10':[BATCH_SIZE,64,80,   1]
 }
 biases = {
+    'bc0': tf.Variable(tf.random_normal([1])),
     'bc1': tf.Variable(tf.random_normal([32])),
     'bc2': tf.Variable(tf.random_normal([64])),
     'bc3': tf.Variable(tf.random_normal([128])),

@@ -39,8 +39,8 @@ print('Loading and preprocessing train data...')
 print('-'*30)
 imgs, imgs_mask = load_train_data()
 
-imgs = preprocess(imgs_train)
-imgs_mask = preprocess(imgs_mask_train)
+imgs = preprocess(imgs)
+imgs_mask = preprocess(imgs_mask)
 
 imgs = imgs.astype('float32')
 mean = np.mean(imgs)  # mean for data centering

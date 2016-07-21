@@ -226,7 +226,7 @@ def train_and_predict():
     print('-'*30)
     print('Creating and compiling model...')
     print('-'*30)
-    model = get_unet()
+    #model = get_unet()
     #model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', save_best_only=True)
     # *Finally neural network structure is defined and TensorFlow graph is ready for training.*
     # ## Train, validate and predict

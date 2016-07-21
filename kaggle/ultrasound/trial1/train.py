@@ -147,7 +147,7 @@ def conv_net(x, weights, biases, dropout):
     conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
 
 
-    out = reshape(conv10,[-1, 1, img_rows, img_cols])
+    out = tf.reshape(conv10,[-1, 1, img_rows, img_cols])
     return out
 
 # Store layers weight & bias

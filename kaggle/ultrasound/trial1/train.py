@@ -21,6 +21,10 @@ TRAINING_ITERATIONS = 20000
 BATCH_SIZE = 128
 display_step = 10
 
+epochs_completed = 0
+index_in_epoch = 0
+num_examples = 5635
+
 
 #in tensorflow
 
@@ -235,9 +239,7 @@ def train_and_predict():
     # Ideally, we should use all data for every step of the training, but that's expensive. So, instead, we use small "batches" of random data.
     #
     # This method is called [stochastic training](https://en.wikipedia.org/wiki/Stochastic_gradient_descent). It is cheaper, faster and gives much of the same result.
-    epochs_completed = 0
-    index_in_epoch = 0
-    num_examples = imgs_train.shape[0]
+
 
 
     print('-'*30)

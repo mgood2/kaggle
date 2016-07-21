@@ -30,13 +30,18 @@ def train_and_predict():
     print('imgs_train shape[0] : %s' %imgs_train.shape[0])
     print('imgs_train shape[1] : %s' %imgs_train.shape[1])
     print('imgs_mask_train : %s' %imgs_mask_train.size)
-
+    print('imgs_mask_train shape[0] : %s' %imgs_mask_train.shape[0])
+    print('imgs_mask_train shape[1] : %s' %imgs_mask_train.shape[1])
 
     imgs_train = preprocess(imgs_train)
     imgs_mask_train = preprocess(imgs_mask_train)
     print('after preprocess size: ')
     print('imgs_train : %s' %imgs_train.size)
+    print('imgs_train shape[0] : %s' %imgs_train.shape[0])
+    print('imgs_train shape[1] : %s' %imgs_train.shape[1])
     print('imgs_mask_train : %s' %imgs_mask_train.size)
+    print('imgs_mask_train shape[0] : %s' %imgs_mask_train.shape[0])
+    print('imgs_mask_train shape[1] : %s' %imgs_mask_train.shape[1])
 
     imgs_train = imgs_train.astype('float32')
     mean = np.mean(imgs_train)  # mean for data centering

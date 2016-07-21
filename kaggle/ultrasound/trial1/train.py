@@ -18,7 +18,7 @@ smooth = 1.
 # Parameters
 LEARNING_RATE = 0.001
 TRAINING_ITERATIONS = 20000
-batch_size = 128
+BATCH_SIZE = 128
 display_step = 10
 
 
@@ -135,10 +135,10 @@ weights = {
     'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
-    'os6': [batch_size, 5, 4, 256],
-    'os7': [batch_size, 5, 4, 128],
-    'os8': [batch_size, 5, 4,  64],
-    'os9': [batch_size, 5, 4,  32]
+    'os6': [BATCH_SIZE, 5, 4, 256],
+    'os7': [BATCH_SIZE, 5, 4, 128],
+    'os8': [BATCH_SIZE, 5, 4,  64],
+    'os9': [BATCH_SIZE, 5, 4,  32]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),
@@ -168,7 +168,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # serve data by batches
 
-def next_batch(batch_size):
+def next_batch(BATCH_SIZE):
 
     global imgs_train
     global imgs_mask_train
@@ -176,7 +176,7 @@ def next_batch(batch_size):
     global epochs_completed
 
     start = index_in_epoch
-    index_in_epoch += batch_size
+    index_in_epoch += BATCH_SIZE
 
     # when all trainig data have been already used, it is reorder randomly
     if index_in_epoch > num_examples:
@@ -189,8 +189,8 @@ def next_batch(batch_size):
         imgs_mask_train = imgs_mask_train[perm]
         # start next epoch
         start = 0
-        index_in_epoch = batch_size
-        assert batch_size <= num_examples
+        index_in_epoch = BATCH_SIZE
+        assert BATCH_SIZE <= num_examples
     end = index_in_epoch
     return imgs_train[start:end], imgs_mask_train[start:end]
 

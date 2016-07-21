@@ -30,8 +30,8 @@ display_step = 10
 dropout = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
-y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+x = tf.placeholder(tf.float32, [None, img_rows*img_cols])
+y_ = tf.placeholder(tf.float32, [None, img_rows*img_cols])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 

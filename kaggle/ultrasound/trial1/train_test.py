@@ -9,6 +9,8 @@ from data import load_train_data, load_test_data
 
 
 import tensorflow as tf
+img_rows = 64
+img_cols = 80
 
 def preprocess(imgs):
     imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)
@@ -19,8 +21,7 @@ def preprocess(imgs):
 
 def train_and_predict():
 
-    img_rows = 64
-    img_cols = 80
+
     print('-'*30)
     print('Loading and preprocessing train data...')
     print('-'*30)

@@ -37,22 +37,26 @@ VALIDATION_SIZE = 2000
 print('-'*30)
 print('Loading and preprocessing train data...')
 print('-'*30)
-imgs_train, imgs_mask_train = load_train_data()
+imgs, imgs_mask = load_train_data()
 
-imgs_train = preprocess(imgs_train)
-imgs_mask_train = preprocess(imgs_mask_train)
+imgs = preprocess(imgs_train)
+imgs_mask = preprocess(imgs_mask_train)
 
-imgs_train = imgs_train.astype('float32')
-mean = np.mean(imgs_train)  # mean for data centering
-std = np.std(imgs_train)  # std for data normalization
+imgs = imgs.astype('float32')
+mean = np.mean(imgs)  # mean for data centering
+std = np.std(imgs)  # std for data normalization
 
-imgs_train -= mean
-imgs_train /= std
+imgs -= mean
+imgs /= std
 
-imgs_mask_train = imgs_mask_train.astype('float32')
-imgs_mask_train /= 255.  # scale masks to [0, 1]
+imgs_mask = imgs_mask.astype('float32')
+imgs_mask /= 255.  # scale masks to [0, 1]
 
+validation_images = imgs[:VALIDATION_SIZE]
+validation_labels = imgs_mask[:VALIDATION_SIZE]
 
+imgs_train = imgs[VALIDATION_SIZE:]
+imgs_mask_train = imgs_mask[VALIDATION_SIZE:]
 
 def dice_coef(y_true, y_pred):
     y_true_f = tf.reshape(y_true, [-1])

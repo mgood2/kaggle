@@ -10,6 +10,7 @@ from data import load_train_data, load_test_data
 
 import tensorflow as tf
 
+#preprocessing image size
 img_rows = 64
 img_cols = 80
 
@@ -21,22 +22,30 @@ TRAINING_ITERATIONS = 20000
 BATCH_SIZE = 128
 display_step = 10
 
-epochs_completed = 0
-index_in_epoch = 0
-num_examples = 5635
 
 
 #in tensorflow
 
 
-# Network Parameters
 
-dropout = 0.75 # Dropout, probability to keep units
+print('-'*30)
+print('Loading and preprocessing train data...')
+print('-'*30)
+imgs_train, imgs_mask_train = load_train_data()
 
-# tf Graph input
-x = tf.placeholder(tf.float32, [None, img_rows*img_cols])
-y_ = tf.placeholder(tf.float32, [None, img_rows*img_cols])
-keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+imgs_train = preprocess(imgs_train)
+imgs_mask_train = preprocess(imgs_mask_train)
+
+imgs_train = imgs_train.astype('float32')
+mean = np.mean(imgs_train)  # mean for data centering
+std = np.std(imgs_train)  # std for data normalization
+
+imgs_train -= mean
+imgs_train /= std
+
+imgs_mask_train = imgs_mask_train.astype('float32')
+imgs_mask_train /= 255.  # scale masks to [0, 1]
+
 
 
 def dice_coef(y_true, y_pred):
@@ -64,6 +73,17 @@ def maxpool2d(x, k=2):
 
 def conv2d_transpose(x, W, OS, strides=1):
     return  tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
+
+
+# Network Parameters
+
+dropout = 0.75 # Dropout, probability to keep units
+
+# tf Graph input
+x = tf.placeholder(tf.float32, [None, img_rows*img_cols])
+y_ = tf.placeholder(tf.float32, [None, img_rows*img_cols])
+keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+
 
 
 # Create model
@@ -167,17 +187,19 @@ correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 
-
-
-
 # serve data by batches
 
+epochs_completed = 0
+index_in_epoch = 0
+
+num_examples =imgs_train.shape[0]
 def next_batch(BATCH_SIZE):
 
     global imgs_train
     global imgs_mask_train
     global index_in_epoch
     global epochs_completed
+    global num_examples
 
     start = index_in_epoch
     index_in_epoch += BATCH_SIZE
@@ -207,115 +229,83 @@ def preprocess(imgs):
     return imgs_p
 
 
-def train_and_predict():
-
-    print('-'*30)
-    print('Loading and preprocessing train data...')
-    print('-'*30)
-    imgs_train, imgs_mask_train = load_train_data()
-
-    imgs_train = preprocess(imgs_train)
-    imgs_mask_train = preprocess(imgs_mask_train)
-
-    imgs_train = imgs_train.astype('float32')
-    mean = np.mean(imgs_train)  # mean for data centering
-    std = np.std(imgs_train)  # std for data normalization
-
-    imgs_train -= mean
-    imgs_train /= std
-
-    imgs_mask_train = imgs_mask_train.astype('float32')
-    imgs_mask_train /= 255.  # scale masks to [0, 1]
-
-    print('-'*30)
-    print('Creating and compiling model...')
-    print('-'*30)
-    #model = get_unet()
-    #model_checkpoint = ModelCheckpoint('unet.hdf5', monitor='loss', save_best_only=True)
-    # *Finally neural network structure is defined and TensorFlow graph is ready for training.*
-    # ## Train, validate and predict
-    # #### Helper functions
-    #
-    # Ideally, we should use all data for every step of the training, but that's expensive. So, instead, we use small "batches" of random data.
-    #
-    # This method is called [stochastic training](https://en.wikipedia.org/wiki/Stochastic_gradient_descent). It is cheaper, faster and gives much of the same result.
+print('-'*30)
+print('Creating and compiling model...')
+print('-'*30)
 
 
 
-    print('-'*30)
-    print('Fitting model...')
-    print('-'*30)
-    init = tf.initialize_all_variables()
-    sess = tf.InteractiveSession()
+print('-'*30)
+print('Fitting model...')
+print('-'*30)
+init = tf.initialize_all_variables()
+sess = tf.InteractiveSession()
 
-    sess.run(init)
-    train_accuracies = []
-    validation_accuracies = []
-    x_range = []
+sess.run(init)
+train_accuracies = []
+validation_accuracies = []
+x_range = []
 
-    display_step=1
+display_step=1
 
-    for i in range(TRAINING_ITERATIONS):
+for i in range(TRAINING_ITERATIONS):
 
-        #get new batch
-        batch_xs, batch_ys = next_batch(BATCH_SIZE)
+    #get new batch
+    batch_xs, batch_ys = next_batch(BATCH_SIZE)
 
-        # check progress on every 1st,2nd,...,10th,20th,...,100th... step
-        if i%display_step == 0 or (i+1) == TRAINING_ITERATIONS:
+    # check progress on every 1st,2nd,...,10th,20th,...,100th... step
+    if i%display_step == 0 or (i+1) == TRAINING_ITERATIONS:
 
-            train_accuracy = accuracy.eval(feed_dict={x:batch_xs,
-                                                      y_: batch_ys,
-                                                      keep_prob: 1.0})
-            if(VALIDATION_SIZE):
-                validation_accuracy = accuracy.eval(feed_dict={ x: validation_images[0:BATCH_SIZE],
-                                                                y_: validation_labels[0:BATCH_SIZE],
-                                                                keep_prob: 1.0})
-                print('training_accuracy / validation_accuracy => %.2f / %.2f for step %d'%(train_accuracy, validation_accuracy, i))
+        train_accuracy = accuracy.eval(feed_dict={x:batch_xs,
+                                                  y_: batch_ys,
+                                                  keep_prob: 1.0})
+        if(VALIDATION_SIZE):
+            validation_accuracy = accuracy.eval(feed_dict={ x: validation_images[0:BATCH_SIZE],
+                                                            y_: validation_labels[0:BATCH_SIZE],
+                                                            keep_prob: 1.0})
+            print('training_accuracy / validation_accuracy => %.2f / %.2f for step %d'%(train_accuracy, validation_accuracy, i))
 
-                validation_accuracies.append(validation_accuracy)
-                x_range.append(i)
-            else:
-                 print('training_accuracy => %.4f for step %d'%(train_accuracy, i))
-            train_accuracies.append(train_accuracy)
+            validation_accuracies.append(validation_accuracy)
+            x_range.append(i)
+        else:
+             print('training_accuracy => %.4f for step %d'%(train_accuracy, i))
+        train_accuracies.append(train_accuracy)
 
-            # increase display_step
-            if i%(display_step*10) == 0 and i:
-                display_step *= 10
-        # train on batch
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
-    # After training is done, it's good to check accuracy on data that wasn't used in training.
-    # check final accuracy on validation set
-    if(VALIDATION_SIZE):
-        validation_accuracy = accuracy.eval(feed_dict={x: validation_images,
-                                                       y_: validation_labels,
-                                                       keep_prob: 1.0})
-        print('validation_accuracy => %.4f'%validation_accuracy)
+        # increase display_step
+        if i%(display_step*10) == 0 and i:
+            display_step *= 10
+    # train on batch
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
+# After training is done, it's good to check accuracy on data that wasn't used in training.
+# check final accuracy on validation set
+if(VALIDATION_SIZE):
+    validation_accuracy = accuracy.eval(feed_dict={x: validation_images,
+                                                   y_: validation_labels,
+                                                   keep_prob: 1.0})
+    print('validation_accuracy => %.4f'%validation_accuracy)
 
-    print('-'*30)
-    print('Loading and preprocessing test data...')
-    print('-'*30)
-    imgs_test, imgs_id_test = load_test_data()
-    imgs_test = preprocess(imgs_test)
+print('-'*30)
+print('Loading and preprocessing test data...')
+print('-'*30)
+imgs_test, imgs_id_test = load_test_data()
+imgs_test = preprocess(imgs_test)
 
-    imgs_test = imgs_test.astype('float32')
-    imgs_test -= mean
-    imgs_test /= std
+imgs_test = imgs_test.astype('float32')
+imgs_test -= mean
+imgs_test /= std
 
-    print('-'*30)
-    print('Predicting masks on test data...')
-    print('-'*30)
-    print('imgs_test({0[0]},{0[1]})'.format(test_images.shape))
+print('-'*30)
+print('Predicting masks on test data...')
+print('-'*30)
+print('imgs_test({0[0]},{0[1]})'.format(test_images.shape))
 
-    imgs_mask_test = np.zeros(imgs_test.shape[0])
+imgs_mask_test = np.zeros(imgs_test.shape[0])
 
-    for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
-        imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = predict.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
+for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
+    imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = predict.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
 
-    print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
+print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
 
-    np.save('imgs_mask_test.npy', imgs_mask_test)
+np.save('imgs_mask_test.npy', imgs_mask_test)
 
-    sess.close()
-
-if __name__ == '__main__':
-    train_and_predict()
+sess.close()

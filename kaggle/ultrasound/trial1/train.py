@@ -87,7 +87,7 @@ def conv2d_transpose(x, W, OS, strides=1):
 
 # Network Parameters
 
-dropout = 0.75 # Dropout, probability to keep units
+DROPOUT = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])

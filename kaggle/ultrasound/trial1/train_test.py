@@ -30,8 +30,9 @@ def train_and_predict():
     imgs_train = preprocess(imgs_train)
     imgs_mask_train = preprocess(imgs_mask_train)
     print('after preprocess size: ')
-        print('imgs_train : %s' %imgs_train.size)
-        print('imgs_mask_train : %s' %imgs_mask_train.size)
+    print('imgs_train : %s' %imgs_train.size)
+    print('imgs_mask_train : %s' %imgs_mask_train.size)
+
     imgs_train = imgs_train.astype('float32')
     mean = np.mean(imgs_train)  # mean for data centering
     std = np.std(imgs_train)  # std for data normalization

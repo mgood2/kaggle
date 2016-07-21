@@ -25,7 +25,8 @@ def preprocess(imgs):
 LEARNING_RATE = 0.001
 TRAINING_ITERATIONS = 20000
 BATCH_SIZE = 128
-display_step = 10
+
+VALIDATION_SIZE = 2000
 
 
 

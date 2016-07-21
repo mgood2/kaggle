@@ -46,7 +46,7 @@ def train_and_predict():
     print(imgs_train.shape)
     print('imgs_train shape[0] : %s' %imgs_train.shape[0])
     print('imgs_train shape[1] : %s' %imgs_train.shape[1])
-    print('imgs_mask_train : ')'
+    print('imgs_mask_train : ')
     print(imgs_mask_train.size)
     print('imgs_mask_train shape : %s' %imgs_mask_train.shape)
     print('imgs_mask_train shape[0] : %s' %imgs_mask_train.shape[0])

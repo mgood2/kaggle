@@ -59,7 +59,7 @@ def maxpool2d(x, k=2):
                           padding='SAME')
 
 def conv2d_transpose(x, W, OS, strides=1):
-    return  tf.nn.conv2d_transpos(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
+    return  tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
 
 
 # Create model

@@ -42,7 +42,7 @@ def train_and_predict():
     imgs_mask_train = preprocess(imgs_mask_train)
     print('after preprocess size: ')
     print('imgs_train : %s' %imgs_train.size)
-    print('imgs_train shape :'
+    print('imgs_train shape :')
     print(imgs_train.shape)
     print('imgs_train shape[0] : %s' %imgs_train.shape[0])
     print('imgs_train shape[1] : %s' %imgs_train.shape[1])

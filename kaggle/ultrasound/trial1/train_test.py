@@ -18,6 +18,9 @@ def preprocess(imgs):
 
 
 def train_and_predict():
+
+    img_rows = 64
+    img_cols = 80
     print('-'*30)
     print('Loading and preprocessing train data...')
     print('-'*30)

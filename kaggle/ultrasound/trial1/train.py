@@ -16,8 +16,8 @@ img_cols = 80
 smooth = 1.
 
 # Parameters
-learning_rate = 0.001
-training_iters = 20000
+LEARNING_RATE = 0.001
+TRAINING_ITERATIONS = 20000
 batch_size = 128
 display_step = 10
 
@@ -155,7 +155,7 @@ pred = conv_net(x, weights, biases, keep_prob)
 
 # Define loss and optimizer
 cost = dice_coef_loss(y_, pred)
-optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
+optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(cost)
 
 
 # Evaluate model

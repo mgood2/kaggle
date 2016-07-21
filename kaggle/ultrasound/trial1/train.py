@@ -118,15 +118,15 @@ def conv_net(x, weights, biases, dropout):
 # Store layers weight & bias
 weights = {
     # 3x3 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([3, 3, 1, 32])),
+    'wc1': tf.Variable(tf.random_normal([5, 4, 1, 32])),
     # 3x3 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([5, 4, 32, 64])),
     # 3x3 conv, 64 inputs, 128 outputs
-    'wc3': tf.Variable(tf.random_normal([3, 3, 64, 128])),
+    'wc3': tf.Variable(tf.random_normal([5, 4, 64, 128])),
     # 3x3 conv, 128 inputs, 256 outputs
-    'wc4': tf.Variable(tf.random_normal([3, 3, 128, 256])),
+    'wc4': tf.Variable(tf.random_normal([5, 4, 128, 256])),
     # 3x3 conv, 256 inputs, 512 outputs
-    'wc5': tf.Variable(tf.random_normal([3, 3, 256, 512])),
+    'wc5': tf.Variable(tf.random_normal([5, 4, 256, 512])),
     # fully connected, 512*64 inputs, 1024 outputs
     'wd1': tf.Variable(tf.random_normal([3*3*4096, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs

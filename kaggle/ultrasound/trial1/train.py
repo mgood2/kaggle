@@ -127,8 +127,8 @@ weights = {
     'wc4': tf.Variable(tf.random_normal([3, 3, 128, 256])),
     # 3x3 conv, 256 inputs, 512 outputs
     'wc5': tf.Variable(tf.random_normal([3, 3, 256, 512])),
-    # fully connected, 256*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([256*64, 1024])),
+    # fully connected, 512*64 inputs, 1024 outputs
+    'wd1': tf.Variable(tf.random_normal([512*64, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs
     'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
     # 1024 inputs, img_rows*img_cols outputs (class prediction)

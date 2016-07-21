@@ -127,8 +127,8 @@ weights = {
     'wd1': tf.Variable(tf.random_normal([16*20*64, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs
     'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
-    # 1024 inputs, 10 outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([1024, 1]))
+    # 1024 inputs, img_rows*img_cols outputs (class prediction)
+    'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
     'os6': [batch_size, 2, 2, 256],
@@ -143,7 +143,7 @@ biases = {
     'bc4': tf.Variable(tf.random_normal([256])),
     'bc5': tf.Variable(tf.random_normal([512])),
     'bd1': tf.Variable(tf.random_normal([1024])),
-    'out': tf.Variable(tf.random_normal([n_classes]))
+    'out': tf.Variable(tf.random_normal([img_rows*img_cols]))
 }
 
 # Construct model

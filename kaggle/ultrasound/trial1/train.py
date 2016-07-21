@@ -128,7 +128,7 @@ weights = {
     # 3x3 conv, 256 inputs, 512 outputs
     'wc5': tf.Variable(tf.random_normal([3, 3, 256, 512])),
     # fully connected, 512*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([3*3*4096, img_rows*img_cols])),
+    'wd1': tf.Variable(tf.random_normal([3*3*4096, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs
     'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
     # 1024 inputs, img_rows*img_cols outputs (class prediction)
@@ -146,7 +146,7 @@ biases = {
     'bc3': tf.Variable(tf.random_normal([128])),
     'bc4': tf.Variable(tf.random_normal([256])),
     'bc5': tf.Variable(tf.random_normal([512])),
-    'bd1': tf.Variable(tf.random_normal([img_rows*img_cols])),
+    'bd1': tf.Variable(tf.random_normal([1024])),
     'out': tf.Variable(tf.random_normal([img_rows*img_cols]))
 }
 

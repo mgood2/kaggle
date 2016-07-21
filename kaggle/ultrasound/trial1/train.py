@@ -159,7 +159,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 
 # Evaluate model
-correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 

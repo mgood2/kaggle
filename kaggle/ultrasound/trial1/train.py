@@ -82,8 +82,9 @@ def maxpool2d(x, k=2):
                           padding='SAME')
 
 def conv2d_transpose(x, W, OS, strides=1):
-    return  tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
-
+    x = tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
+    x = tf.nn.bias_add(x, b)
+    return tf.nn.relu(x)
 
 # Network Parameters
 
@@ -104,75 +105,78 @@ def conv_net(x, weights, biases, dropout):
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
-    conv1 = maxpool2d(conv1, k=2)
-    # [-1, 40, 32, 32]
+    pool1 = maxpool2d(conv1, k=2)
 
     # Convolution Layer
-    conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
+    conv2 = conv2d(pool1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
-    conv2 = maxpool2d(conv2, k=2)
-    # [-1, 20, 16, 64]
+    pool2 = maxpool2d(conv2, k=2)
 
     # Convolution Layer
-    conv3 = conv2d(conv2, weights['wc3'], biases['bc3'])
+    conv3 = conv2d(pool2, weights['wc3'], biases['bc3'])
     # Max Pooling (down-sampling)
-    conv3 = maxpool2d(conv3, k=2)
-    # [-1, 10, 8, 128]
+    pool3 = maxpool2d(conv3, k=2)
 
     # Convolution Layer
-    conv4 = conv2d(conv3, weights['wc4'], biases['bc4'])
+    conv4 = conv2d(pool3, weights['wc4'], biases['bc4'])
     # Max Pooling (down-sampling)
-    conv4 = maxpool2d(conv4, k=2)
-    # [ -1, 4, 5, 256]
+    pool4 = maxpool2d(conv4, k=2)
 
     # Convolution Layer
-    conv5 = conv2d(conv4, weights['wc5'], biases['bc5'])
+    conv5 = conv2d(pool4, weights['wc5'], biases['bc5'])
+
+
 
     # Deconolution Layer
     conv6 = conv2d_transpose(conv5, weights['wc5'], outputshape['os6'])
+    # Pooling Up-sampling
+    pool6 = conv2d_transpose(conv6, weights['pl6'], outputshape['up6'], strides=2)
     # Deconolution Layer
-    conv7 = conv2d_transpose(conv6, weights['wc4'], outputshape['os7'])
+    conv7 = conv2d_transpose(pool6, weights['wc4'], outputshape['os7'])
+    # Pooling Up-sampling
+    pool7 = conv2d_transpose(conv7, weights['pl7'], outputshape['up7'], strides=2)
     # Deconolution Layer
-    conv8 = conv2d_transpose(conv7, weights['wc3'], outputshape['os8'])
+    conv8 = conv2d_transpose(pool7, weights['wc3'], outputshape['os8'])
+    # Pooling Up-sampling
+    pool8 = conv2d_transpose(conv8, weights['pl8'], outputshape['up8'], strides=2)
     # Deconolution Layer
-    conv9 = conv2d_transpose(conv8, weights['wc2'], outputshape['os9'])
+    conv9 = conv2d_transpose(pool8, weights['wc2'], outputshape['os9'])
+    # Pooling Up-sampling
+    pool9 = conv2d_transpose(conv9, weights['pl9'], outputshape['up9'], strides=2)
 
-    # Fully connected layer
-    # Reshape conv9 output to fit fully connected layer input
-    fc1 = tf.reshape(conv9, [-1, weights['wd1'].get_shape().as_list()[0]])
-    fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
-    fc1 = tf.sigmoid(fc1)
-    # Apply Dropout
-    fc1 = tf.nn.dropout(fc1, dropout)
+    conv10 = conv2d_transpose(pool9, weights['wc1'], outputshape['os10'])
 
-    # Output, class prediction
-    out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
+
+    out = reshape(conv10,[-1, 1, img_rows, img_cols])
     return out
 
 # Store layers weight & bias
 weights = {
-    # 3x3 conv, 1 input, 32 outputs
     'wc1': tf.Variable(tf.random_normal([4, 5, 1, 32])),
-    # 3x3 conv, 32 inputs, 64 outputs
     'wc2': tf.Variable(tf.random_normal([4, 5, 32, 64])),
-    # 3x3 conv, 64 inputs, 128 outputs
     'wc3': tf.Variable(tf.random_normal([4, 5, 64, 128])),
-    # 3x3 conv, 128 inputs, 256 outputs
     'wc4': tf.Variable(tf.random_normal([4, 5, 128, 256])),
-    # 3x3 conv, 256 inputs, 512 outputs
     'wc5': tf.Variable(tf.random_normal([4, 5, 256, 512])),
-    # fully connected, 512*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([4*5*4096, 1024])),
-    # fully connected, 4*5*64 inputs, 1024 outputs
-    'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
-    # 1024 inputs, img_rows*img_cols outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
+    'wc6': tf.Variable(tf.random_normal([4, 5, 256, 512])),
+    'wc7': tf.Variable(tf.random_normal([4, 5, 128, 256])),
+    'wc8': tf.Variable(tf.random_normal([4, 5, 64, 128])),
+    'wc9': tf.Variable(tf.random_normal([4, 5, 32, 64])),
+    'wc10': tf.Variable(tf.random_normal([4, 5, 1, 32])),
+    'pl6': tf.Variable(tf.random_normal([2, 2, 256, 256])),
+    'pl7': tf.Variable(tf.random_normal([2, 2, 128, 128])),
+    'pl8': tf.Variable(tf.random_normal([2, 2, 64, 64])),
+    'pl9': tf.Variable(tf.random_normal([2, 2, 32, 32]))
 }
 outputshape = {
     'os6': [BATCH_SIZE, 4, 5, 256],
-    'os7': [BATCH_SIZE, 4, 5, 128],
-    'os8': [BATCH_SIZE, 4, 5,  64],
-    'os9': [BATCH_SIZE, 4, 5,  32]
+    'up6': [BATCH_SIZE, 8,10, 256],
+    'os7': [BATCH_SIZE, 8,10, 128],
+    'up7': [BATCH_SIZE,16,20, 128],
+    'os8': [BATCH_SIZE,16,20,  64],
+    'up8': [BATCH_SIZE,32,40,  64],
+    'os9': [BATCH_SIZE,32,40,  32],
+    'up9': [BATCH_SIZE,64,80,  32],
+    'os10':[BATCH_SIZE,64,80,   1]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),
@@ -180,8 +184,6 @@ biases = {
     'bc3': tf.Variable(tf.random_normal([128])),
     'bc4': tf.Variable(tf.random_normal([256])),
     'bc5': tf.Variable(tf.random_normal([512])),
-    'bd1': tf.Variable(tf.random_normal([1024])),
-    'out': tf.Variable(tf.random_normal([img_rows*img_cols]))
 }
 
 # Construct model

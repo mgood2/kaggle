@@ -71,21 +71,25 @@ def conv_net(x, weights, biases, dropout):
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
     conv1 = maxpool2d(conv1, k=2)
+    # [-1, 40, 32, 32]
 
     # Convolution Layer
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
     conv2 = maxpool2d(conv2, k=2)
+    # [-1, 20, 16, 64]
 
     # Convolution Layer
     conv3 = conv2d(conv2, weights['wc3'], biases['bc3'])
     # Max Pooling (down-sampling)
     conv3 = maxpool2d(conv3, k=2)
+    # [-1, 10, 8, 128]
 
     # Convolution Layer
     conv4 = conv2d(conv3, weights['wc4'], biases['bc4'])
     # Max Pooling (down-sampling)
     conv4 = maxpool2d(conv4, k=2)
+    # [ -1, 5, 4, 256]
 
     # Convolution Layer
     conv5 = conv2d(conv4, weights['wc5'], biases['bc5'])
@@ -131,10 +135,10 @@ weights = {
     'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
-    'os6': [batch_size, 2, 2, 256],
-    'os7': [batch_size, 2, 2, 128],
-    'os8': [batch_size, 2, 2,  64],
-    'os9': [batch_size, 2, 2,  32]
+    'os6': [batch_size, 10, 8, 256],
+    'os7': [batch_size, 20, 16, 128],
+    'os8': [batch_size, 40, 32,  64],
+    'os9': [batch_size, 80, 64,  32]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),

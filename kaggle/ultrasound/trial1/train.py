@@ -118,15 +118,15 @@ def conv_net(x, weights, biases, dropout):
 # Store layers weight & bias
 weights = {
     # 3x3 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([3, 3, 1, 32])),
+    'wc1': tf.Variable(tf.random_normal([5, 4, 1, 32])),
     # 3x3 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([5, 4, 32, 64])),
     # 3x3 conv, 64 inputs, 128 outputs
-    'wc3': tf.Variable(tf.random_normal([3, 3, 64, 128])),
+    'wc3': tf.Variable(tf.random_normal([5, 4, 64, 128])),
     # 3x3 conv, 128 inputs, 256 outputs
-    'wc4': tf.Variable(tf.random_normal([3, 3, 128, 256])),
+    'wc4': tf.Variable(tf.random_normal([5, 4, 128, 256])),
     # 3x3 conv, 256 inputs, 512 outputs
-    'wc5': tf.Variable(tf.random_normal([3, 3, 256, 512])),
+    'wc5': tf.Variable(tf.random_normal([5, 4, 256, 512])),
     # fully connected, 512*64 inputs, 1024 outputs
     'wd1': tf.Variable(tf.random_normal([3*3*4096, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs
@@ -135,10 +135,10 @@ weights = {
     'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
-    'os6': [batch_size, 3, 3, 256],
-    'os7': [batch_size, 3, 3, 128],
-    'os8': [batch_size, 3, 3,  64],
-    'os9': [batch_size, 3, 3,  32]
+    'os6': [batch_size, 5, 4, 256],
+    'os7': [batch_size, 5, 4, 128],
+    'os8': [batch_size, 5, 4,  64],
+    'os9': [batch_size, 5, 4,  32]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),
@@ -300,16 +300,20 @@ def train_and_predict():
     imgs_test /= std
 
     print('-'*30)
-    print('Loading saved weights...')
-    print('-'*30)
-    model.load_weights('unet.hdf5')
-
-    print('-'*30)
     print('Predicting masks on test data...')
     print('-'*30)
-    imgs_mask_test = model.predict(imgs_test, verbose=1)
+    print('imgs_test({0[0]},{0[1]})'.format(test_images.shape))
+
+    imgs_mask_test = np.zeros(imgs_test.shape[0])
+
+    for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
+        imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = predict.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
+
+    print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
+
     np.save('imgs_mask_test.npy', imgs_mask_test)
 
+    sess.close()
 
 if __name__ == '__main__':
     train_and_predict()

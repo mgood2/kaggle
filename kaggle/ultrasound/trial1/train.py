@@ -10,9 +10,30 @@ from data import load_train_data, load_test_data
 
 import tensorflow as tf
 
+img_rows = 64
+img_cols = 80
+
+smooth = 1.
+
+# Parameters
+learning_rate = 0.001
+training_iters = 20000
+batch_size = 128
+display_step = 10
 
 
 #in tensorflow
+
+
+# Network Parameters
+
+dropout = 0.75 # Dropout, probability to keep units
+
+# tf Graph input
+x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+
 
 def dice_coef(y_true, y_pred):
     y_true_f = tf.reshape(y_true, [-1])
@@ -179,31 +200,6 @@ def preprocess(imgs):
 
 
 def train_and_predict():
-
-    img_rows = 64
-    img_cols = 80
-
-    smooth = 1.
-
-    # Parameters
-    learning_rate = 0.001
-    training_iters = 20000
-    batch_size = 128
-    display_step = 10
-
-    # Network Parameters
-    n_input = 784 # MNIST data input (img shape: 28*28)
-    n_classes = 10 # MNIST total classes (0-9 digits)
-    dropout = 0.75 # Dropout, probability to keep units
-
-    # tf Graph input
-    x = tf.placeholder(tf.float32, [None, n_input])
-    y_ = tf.placeholder(tf.float32, [None, n_classes])
-    keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
-
-
-
-
 
     print('-'*30)
     print('Loading and preprocessing train data...')

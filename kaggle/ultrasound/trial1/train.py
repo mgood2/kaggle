@@ -85,8 +85,8 @@ def conv2d_transpose(x, W, OS, strides=1):
 dropout = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, img_rows*img_cols])
-y_ = tf.placeholder(tf.float32, [None, img_rows*img_cols])
+x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 
@@ -94,7 +94,7 @@ keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
-    x = tf.reshape(x, shape=[-1, img_cols, img_rows, 1])
+    x = tf.reshape(x, shape=[-1,img_rows, img_cols, 1])
 
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
@@ -118,7 +118,7 @@ def conv_net(x, weights, biases, dropout):
     conv4 = conv2d(conv3, weights['wc4'], biases['bc4'])
     # Max Pooling (down-sampling)
     conv4 = maxpool2d(conv4, k=2)
-    # [ -1, 5, 4, 256]
+    # [ -1, 4, 5, 256]
 
     # Convolution Layer
     conv5 = conv2d(conv4, weights['wc5'], biases['bc5'])
@@ -147,27 +147,27 @@ def conv_net(x, weights, biases, dropout):
 # Store layers weight & bias
 weights = {
     # 3x3 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([5, 4, 1, 32])),
+    'wc1': tf.Variable(tf.random_normal([4, 5, 1, 32])),
     # 3x3 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([5, 4, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([4, 5, 32, 64])),
     # 3x3 conv, 64 inputs, 128 outputs
-    'wc3': tf.Variable(tf.random_normal([5, 4, 64, 128])),
+    'wc3': tf.Variable(tf.random_normal([4, 5, 64, 128])),
     # 3x3 conv, 128 inputs, 256 outputs
-    'wc4': tf.Variable(tf.random_normal([5, 4, 128, 256])),
+    'wc4': tf.Variable(tf.random_normal([4, 5, 128, 256])),
     # 3x3 conv, 256 inputs, 512 outputs
-    'wc5': tf.Variable(tf.random_normal([5, 4, 256, 512])),
+    'wc5': tf.Variable(tf.random_normal([4, 5, 256, 512])),
     # fully connected, 512*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([5*4*4096, 1024])),
+    'wd1': tf.Variable(tf.random_normal([4*5*4096, 1024])),
     # fully connected, 4*5*64 inputs, 1024 outputs
     'wd2': tf.Variable(tf.random_normal([4*5*64, 1024])),
     # 1024 inputs, img_rows*img_cols outputs (class prediction)
     'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
-    'os6': [BATCH_SIZE, 5, 4, 256],
-    'os7': [BATCH_SIZE, 5, 4, 128],
-    'os8': [BATCH_SIZE, 5, 4,  64],
-    'os9': [BATCH_SIZE, 5, 4,  32]
+    'os6': [BATCH_SIZE, 4, 5, 256],
+    'os7': [BATCH_SIZE, 4, 5, 128],
+    'os8': [BATCH_SIZE, 4, 5,  64],
+    'os9': [BATCH_SIZE, 4, 5,  32]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),

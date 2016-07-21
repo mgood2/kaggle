@@ -135,10 +135,10 @@ weights = {
     'out': tf.Variable(tf.random_normal([1024, img_rows*img_cols]))
 }
 outputshape = {
-    'os6': [batch_size, 5, 4, 256],
-    'os7': [batch_size, 10, 8, 128],
-    'os8': [batch_size, 20, 16,  64],
-    'os9': [batch_size, 40, 32,  32]
+    'os6': [batch_size, 3, 3, 256],
+    'os7': [batch_size, 3, 3, 128],
+    'os8': [batch_size, 3, 3,  64],
+    'os9': [batch_size, 3, 3,  32]
 }
 biases = {
     'bc1': tf.Variable(tf.random_normal([32])),

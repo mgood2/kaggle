@@ -23,10 +23,10 @@ def preprocess(imgs):
 
 # Parameters
 LEARNING_RATE = 0.001
-TRAINING_ITERATIONS = 20000
+TRAINING_ITERATIONS = 2000
 BATCH_SIZE = 128
 
-VALIDATION_SIZE = 2000
+VALIDATION_SIZE = 128
 
 
 
@@ -147,7 +147,7 @@ def conv_net(x, weights, biases, dropout):
     conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
 
 
-    out = tf.reshape(conv10,[-1, 1, img_rows, img_cols])
+    out = tf.reshape(conv10,[-1,img_rows, img_cols, 1])
     return out
 
 # Store layers weight & bias
@@ -305,12 +305,12 @@ imgs_test /= std
 print('-'*30)
 print('Predicting masks on test data...')
 print('-'*30)
-print('imgs_test({0[0]},{0[1]})'.format(test_images.shape))
+print('imgs_test({0[0]},{0[1]})'.format(imgs_test.shape))
 
 imgs_mask_test = np.zeros(imgs_test.shape[0])
 
 for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
-    imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = predict.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
+    imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = pred.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
 
 print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
 

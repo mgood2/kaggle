@@ -100,7 +100,7 @@ keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
-    x = tf.reshape(x, shape=[-1,img_rows, img_cols, 1])
+    x = tf.transpose(x, (0,2,3,1))
 
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
@@ -147,7 +147,7 @@ def conv_net(x, weights, biases, dropout):
     conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
 
 
-    out = tf.reshape(conv10,[-1,1, img_rows, img_cols])
+    out = tf.transpose(x, (0,3,1,2))
     return out
 
 # Store layers weight & bias

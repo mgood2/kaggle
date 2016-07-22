@@ -308,13 +308,13 @@ print('Predicting masks on test data...')
 print('-'*30)
 print('imgs_test({0[0]},{0[1]})'.format(imgs_test.shape))
 
-imgs_mask_test = np.zeros(imgs_test.shape[0])
+imgs_mask_test = np.zeros(imgs_test.shape[0]*img_rows*img_cols)
 
 for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
     imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = pred.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
 
 print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
-
+imgs_mask_test = tf.reshape(imgs_mask_test,(-1, 1, img_rows,img_cols))
 np.save('imgs_mask_test.npy', imgs_mask_test)
 
 sess.close()

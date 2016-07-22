@@ -92,7 +92,7 @@ DROPOUT = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
-y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+y_ = tf.placeholder(tf.float32, [None, img_rows* img_cols])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 
@@ -147,8 +147,8 @@ def conv_net(x, weights, biases, dropout):
     conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
 
 
-    out = tf.transpose(conv10, (0,3,1,2))
-
+    final = tf.transpose(conv10, (0,3,1,2))
+    print(final.shape)
     return out
 
 # Store layers weight & bias

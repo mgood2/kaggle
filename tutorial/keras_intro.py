@@ -30,7 +30,7 @@ model.add(Activation('softmax'))
 # Compile model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 # save trained model to model.hdf5
-model_checkpoint = ModelCheckpoint('model.hdf5', monitor='loss', save_best_only=True)
+model_checkpoint = ModelCheckpoint('model.hdf5', monitor='loss', save_best_only=True) 
 
 print('-'*30)
 print('Fitting model...')

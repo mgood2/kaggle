@@ -76,27 +76,13 @@ model.add(Convolution2D(64, 3, 3))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Convolution2D(128, 3, 3))
+model.add(Convolution2D(32, 3, 3))
 model.add(Activation('relu'))
-model.add(Convolution2D(128, 3, 3))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-
-model.add(Convolution2D(256, 3, 3))
-model.add(Activation('relu'))
-model.add(Convolution2D(256, 3, 3))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-
-model.add(Convolution2D(512, 3, 3))
-model.add(Activation('relu'))
-model.add(Convolution2D(512, 3, 3))
+model.add(Convolution2D(32, 3, 3))
 model.add(Activation('relu'))
 
-model.add(Flatten())
-
-model.add(Dense(512))
-
+model.add(Convolution2D(1, 1, 1))
+model.add(Activation('sigmoid'))
 
 model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
 

@@ -46,9 +46,8 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 print('-'*30)
 print('Loading test data...')
 print('-'*30)
-# load pima indians dataset
+
 dataset = np.loadtxt("pima-indians-diabetes-test-set.csv", delimiter=",")
-# split into input (X) and output (Y) variables
 X_test = dataset[:,0:8]
 
 print('-'*30)

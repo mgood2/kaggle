@@ -53,7 +53,7 @@ def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
 
-def init_weight(shape):
+def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
 
 def model(X, w1, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden):

@@ -87,11 +87,11 @@ def model(X, w1, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden):
 trX, trY, teX, teY = imgs[0:imgs.shape[0]*8/10], imgs_mask[0:imgs.shape[0]*8/10], imgs[imgs.shape[0]*8/10+1:imgs.shape[0]], imgs_mask[imgs.shape[0]*8/10+1:imgs.shape[0]]
 trX = tf.transpose(trX,(0,2,3,1))
 teX = tf.transpose(teX,(0,2,3,1))
-trY = tf.reshape(-1, img_rows * img_cols)
-teY = tf.reshape(-1, img_rows * img_cols)
+trY = tf.transpose(trY,(0,2,3,1))
+teY = tf.transpose(teY,(0,2,3,1))
 
 X = tf.placeholder(tf.float32, [None, img_rows, img_cols, 1])
-Y = tf.placeholder(tf.float32, [None, img_rows * img_cols])
+Y = tf.placeholder(tf.float32, [None, img_rows, img_cols, 1])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 w = init_weights([3, 3, 1, 32])       # 3x3x1 conv, 32 outputs

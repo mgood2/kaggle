@@ -1,5 +1,5 @@
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Activation
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 
@@ -25,6 +25,7 @@ model = Sequential()
 model.add(Dense(12, input_dim=8, init='uniform', activation='relu'))
 model.add(Dense(8, init='uniform', activation='relu'))
 model.add(Dense(1, init='uniform', activation='sigmoid'))
+model.add(Activation('softmax'))
 
 # Compile model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])

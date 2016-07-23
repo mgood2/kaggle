@@ -59,10 +59,10 @@ model.load_weights('model.hdf5')
 print('-'*30)
 print('Predicting test data...')
 print('-'*30)
-predicted_lables = model.predict(X_test)
+predicted_labels = model.predict(X_test)
 
 np.savetxt('submission.csv',
-           np.c_[range(1,len(X_test)+1),predicted_lables[0]],
+           np.c_[range(1,len(X_test)+1),predicted_labels],
            delimiter=',',
            header = '',
            comments = '',

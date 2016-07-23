@@ -66,5 +66,4 @@ def binary_classficiation(a):
             a[i] = 1
         else:
             a[i] = 0
-    return a
-print(a)
+        print a[i]

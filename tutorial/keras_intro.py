@@ -35,7 +35,7 @@ print('-'*30)
 print('Fitting model...')
 print('-'*30)
 # Fit the model
-model.fit(X, Y, nb_epoch=150, batch_size=10, callbacks=[model_checkpoint])
+model.fit(X, Y, nb_epoch=100, batch_size=10, callbacks=[model_checkpoint])
 
 # evaluate the model
 scores = model.evaluate(X, Y)
@@ -60,4 +60,11 @@ print('-'*30)
 print('Predicting test data...')
 print('-'*30)
 a = model.predict(X_test)
+def binary_classficiation(a):
+    for i in a:
+        if i > 0.5:
+            a[i] = 1
+        else:
+            a[i] = 0
+    return a
 print(a)

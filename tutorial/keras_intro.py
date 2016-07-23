@@ -62,8 +62,7 @@ print('-'*30)
 a = model.predict(X_test)
 
 for i in a:
-    if i > 0.5:
-        a[i] = 1
+    if i[0] > 0.5:
+        print("1 ")
     else:
-        a[i] = 0
-    print a[i]
+        print("0 ")

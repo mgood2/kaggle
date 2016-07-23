@@ -24,13 +24,12 @@ print('-'*30)
 model = Sequential()
 model.add(Dense(12, input_dim=8, init='uniform', activation='relu'))
 model.add(Dense(8, init='uniform', activation='relu'))
-model.add(Dense(1, init='uniform'))
-model.add(Activation('softmax'))
+model.add(Dense(1, init='uniform', activation='sigmoid'))
 
 # Compile model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 # save trained model to model.hdf5
-model_checkpoint = ModelCheckpoint('model.hdf5', monitor='loss', save_best_only=True) 
+model_checkpoint = ModelCheckpoint('model.hdf5', monitor='loss', save_best_only=True)
 
 print('-'*30)
 print('Fitting model...')
@@ -63,7 +62,7 @@ print('-'*30)
 predicted_labels = model.predict(X_test)
 
 np.savetxt('submission.csv',
-           np.c_[range(1,len(X_test)+1),predicted_labels],
+           np.c_[range(1,len(X_test)+1),(predicted_labels>0.5)],
            delimiter=',',
            header = '',
            comments = '',

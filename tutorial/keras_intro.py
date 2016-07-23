@@ -66,4 +66,4 @@ np.savetxt('submission.csv',
            delimiter=',',
            header = '',
            comments = '',
-           fmt='%d')
+           fmt='%d %10.3f')

@@ -47,7 +47,7 @@ print('-'*30)
 print('Loading test data...')
 print('-'*30)
 # load pima indians dataset
-dataset = np.loadtxt("pima-indians-diabetes-test.csv", delimiter=",")
+dataset = np.loadtxt("pima-indians-diabetes-test-set.csv", delimiter=",")
 # split into input (X) and output (Y) variables
 X_test = dataset[:,0:8]
 
@@ -60,3 +60,4 @@ print('-'*30)
 print('Predicting test data...')
 print('-'*30)
 a = model.predict(X_test)
+print(a)

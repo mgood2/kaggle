@@ -60,10 +60,10 @@ print('-'*30)
 print('Predicting test data...')
 print('-'*30)
 a = model.predict(X_test)
-def binary_classficiation(a):
-    for i in a:
-        if i > 0.5:
-            a[i] = 1
-        else:
-            a[i] = 0
-        print a[i]
+
+for i in a:
+    if i > 0.5:
+        a[i] = 1
+    else:
+        a[i] = 0
+    print a[i]

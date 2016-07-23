@@ -3,7 +3,7 @@ from __future__ import print_function
 import cv2
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, Flatten
+from keras.layers import Input, Activation, Convolution2D, MaxPooling2D, Flatten
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as K
@@ -25,14 +25,6 @@ def dice_coef(y_true, y_pred):
 
 def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
-
-
-def get_unet():
-    inputs = Input()
-
-
-    return model
-
 
 def preprocess(imgs):
     imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)

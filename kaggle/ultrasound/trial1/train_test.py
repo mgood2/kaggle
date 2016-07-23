@@ -6,27 +6,26 @@ import tensorflow as tf
 
 from data import load_train_data, load_test_data
 
+# Parameters
+LEARNING_RATE = 0.001
+TRAINING_ITERATIONS = 2000
+BATCH_SIZE = 128
 
 
-import tensorflow as tf
 
 #preprocessing image size
 img_rows = 64
 img_cols = 80
 
 smooth = 1.
+
+
 def preprocess(imgs):
     imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)
     for i in range(imgs.shape[0]):
         imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows), interpolation=cv2.INTER_CUBIC)
     return imgs_p
 
-# Parameters
-LEARNING_RATE = 0.001
-TRAINING_ITERATIONS = 2000
-BATCH_SIZE = 128
-
-VALIDATION_SIZE = 128
 
 
 print('-'*30)
@@ -87,7 +86,7 @@ DROPOUT = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
-y_ = tf.placeholder(tf.float32, [None, img_rows* img_cols])
+y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 
@@ -305,7 +304,7 @@ print('Predicting masks on test data...')
 print('-'*30)
 print('imgs_test({0[0]},{0[1]})'.format(imgs_test.shape))
 
-#error occured 
+#error occured
 imgs_mask_test = np.zeros(imgs_test.shape[0])
 imgs_mask_test = tf.reshape(imgs_mask_test,(-1, 1, img_rows, img_cols))
 for i in range(0,imgs_test.shape[0]//BATCH_SIZE):

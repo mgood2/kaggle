@@ -59,10 +59,11 @@ model.load_weights('model.hdf5')
 print('-'*30)
 print('Predicting test data...')
 print('-'*30)
-a = model.predict(X_test)
+predicted_lables = model.predict(X_test)
 
-for i in a:
-    if i[0] > 0.5:
-        print("1 ")
-    else:
-        print("0 ")
+np.savetxt('submission.csv',
+           np.c_[range(1,len(X_test)+1),predicted_lables],
+           delimiter=',',
+           header = '',
+           comments = '',
+           fmt='%d')

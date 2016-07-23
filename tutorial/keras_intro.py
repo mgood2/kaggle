@@ -44,7 +44,7 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
 
 print('-'*30)
-print('Loading test data...') 
+print('Loading test data...')
 print('-'*30)
 # load pima indians dataset
 dataset = np.loadtxt("pima-indians-diabetes-test-set.csv", delimiter=",")
@@ -62,7 +62,7 @@ print('-'*30)
 predicted_lables = model.predict(X_test)
 
 np.savetxt('submission.csv',
-           np.c_[range(1,len(X_test)+1),predicted_lables],
+           np.c_[range(1,len(X_test)+1),predicted_lables[:,0]],
            delimiter=',',
            header = '',
            comments = '',

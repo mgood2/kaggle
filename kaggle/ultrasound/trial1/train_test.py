@@ -7,26 +7,21 @@ import tensorflow as tf
 from data import load_train_data, load_test_data
 
 # Parameters
-LEARNING_RATE = 0.001
-TRAINING_ITERATIONS = 2000
-BATCH_SIZE = 128
+
+batch_size = 128
+test_size = 256
 
 
 
 #preprocessing image size
 img_rows = 64
 img_cols = 80
-
 smooth = 1.
-
-
 def preprocess(imgs):
     imgs_p = np.ndarray((imgs.shape[0], imgs.shape[1], img_rows, img_cols), dtype=np.uint8)
     for i in range(imgs.shape[0]):
         imgs_p[i, 0] = cv2.resize(imgs[i, 0], (img_cols, img_rows), interpolation=cv2.INTER_CUBIC)
     return imgs_p
-
-
 
 print('-'*30)
 print('Loading and preprocessing train data...')
@@ -46,11 +41,6 @@ imgs /= std
 imgs_mask = imgs_mask.astype('float32')
 imgs_mask /= 255.  # scale masks to [0, 1]
 
-validation_images = imgs[:VALIDATION_SIZE]
-validation_labels = imgs_mask[:VALIDATION_SIZE]
-
-imgs_train = imgs[VALIDATION_SIZE:]
-imgs_mask_train = imgs_mask[VALIDATION_SIZE:]
 
 def dice_coef(y_true, y_pred):
     y_true_f = tf.reshape(y_true, [-1])
@@ -63,231 +53,63 @@ def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
 
-# Create some wrappers for simplicity
-def conv2d(x, W, b, strides=1):
-    # Conv2D wrapper, with bias and relu activation
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
-    x = tf.nn.bias_add(x, b)
-    return tf.nn.relu(x)
+def init_weight(shape):
+    return tf.Variable(tf.random_normal(shape, stddev=0.01))
 
-def maxpool2d(x, k=2):
-    # MaxPool2D wrapper
-    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
-                          padding='SAME')
+def model(X, w1, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden):
 
-def conv2d_transpose(x, W, b, OS, strides=1):
-    x = tf.nn.conv2d_transpose(x, W, OS, strides=[1, strides, strides, 1], padding='SAME')
-    x = tf.nn.bias_add(x, b)
-    return tf.nn.relu(x)
+    l1a = tf.nn.relu(tf.nn.conv2d(X, w,                       # l1a shape=(?, 64, 80, 32)
+                        strides=[1, 1, 1, 1], padding='SAME'))
+    l1 = tf.nn.max_pool(l1a, ksize=[1, 2, 2, 1],              # l1 shape=(?, 14, 14, 32)
+                        strides=[1, 2, 2, 1], padding='SAME')
+    l1 = tf.nn.dropout(l1, p_keep_conv)
 
-# Network Parameters
+    l2a = tf.nn.relu(tf.nn.conv2d(l1, w2,                     # l2a shape=(?, 14, 14, 64)
+                        strides=[1, 1, 1, 1], padding='SAME'))
+    l2 = tf.nn.max_pool(l2a, ksize=[1, 2, 2, 1],              # l2 shape=(?, 7, 7, 64)
+                        strides=[1, 2, 2, 1], padding='SAME')
+    l2 = tf.nn.dropout(l2, p_keep_conv)
 
-DROPOUT = 0.75 # Dropout, probability to keep units
+    l3a = tf.nn.relu(tf.nn.conv2d(l2, w3,                     # l3a shape=(?, 7, 7, 128)
+                        strides=[1, 1, 1, 1], padding='SAME'))
+    l3 = tf.nn.max_pool(l3a, ksize=[1, 2, 2, 1],              # l3 shape=(?, 4, 4, 128)
+                        strides=[1, 2, 2, 1], padding='SAME')
+    l3 = tf.reshape(l3, [-1, w4.get_shape().as_list()[0]])    # reshape to (?, 2048)
+    l3 = tf.nn.dropout(l3, p_keep_conv)
 
-# tf Graph input
-x = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
-y_ = tf.placeholder(tf.float32, [None, 1, img_rows, img_cols])
+    l4 = tf.nn.relu(tf.matmul(l3, w4))
+    l4 = tf.nn.dropout(l4, p_keep_hidden)
+
+    pyx = tf.matmul(l4, w_o)
+    return pyx
+
+
+trX, trY, teX, teY = imgs[0:imgs.shape[0]*8/10], imgs_mask[0:imgs.shape[0]*8/10], imgs[imgs.shape[0]*8/10+1:imgs.shape[0]], imgs_mask[imgs.shape[0]*8/10+1:imgs.shape[0]]
+trX = tf.transpose(trX,(0,2,3,1))
+teX = tf.transpose(teX,(0,2,3,1))
+trY = tf.reshape(-1, img_rows * img_cols)
+teY = tf.reshape(-1, img_rows * img_cols)
+
+X = tf.placeholder(tf.float32, [None, img_rows, img_cols, 1])
+Y = tf.placeholder(tf.float32, [None, img_rows * img_cols])
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
+w = init_weights([3, 3, 1, 32])       # 3x3x1 conv, 32 outputs
+w2 = init_weights([3, 3, 32, 64])     # 3x3x32 conv, 64 outputs
+w3 = init_weights([3, 3, 64, 128])    # 3x3x32 conv, 128 outputs
+w4 = init_weights([128 * 4 * 4, 625]) # FC 128 * 4 * 4 inputs, 625 outputs
+w_o = init_weights([625, img_rows * img_cols])         # FC 625 inputs, 10 outputs (labels)
 
-
-# Create model
-def conv_net(x, weights, biases, dropout):
-    # Reshape input picture
-    x = tf.transpose(x, (0,2,3,1))
-
-    # Convolution Layer
-    conv1 = conv2d(x, weights['wc1'], biases['bc1'])
-    # Max Pooling (down-sampling)
-    pool1 = maxpool2d(conv1, k=2)
-
-    # Convolution Layer
-    conv2 = conv2d(pool1, weights['wc2'], biases['bc2'])
-    # Max Pooling (down-sampling)
-    pool2 = maxpool2d(conv2, k=2)
-
-    # Convolution Layer
-    conv3 = conv2d(pool2, weights['wc3'], biases['bc3'])
-    # Max Pooling (down-sampling)
-    pool3 = maxpool2d(conv3, k=2)
-
-    # Convolution Layer
-    conv4 = conv2d(pool3, weights['wc4'], biases['bc4'])
-    # Max Pooling (down-sampling)
-    pool4 = maxpool2d(conv4, k=2)
-
-    # Convolution Layer
-    conv5 = conv2d(pool4, weights['wc5'], biases['bc5'])
-
-
-
-    # Deconolution Layer
-    conv6 = conv2d_transpose(conv5, weights['wc5'],  biases['bc4'], outputshape['os6'])
-    # Pooling Up-sampling
-    pool6 = conv2d_transpose(conv6, weights['pl6'],  biases['bc4'],  outputshape['up6'], strides=2)
-    # Deconolution Layer
-    conv7 = conv2d_transpose(pool6, weights['wc4'],  biases['bc3'], outputshape['os7'])
-    # Pooling Up-sampling
-    pool7 = conv2d_transpose(conv7, weights['pl7'],  biases['bc3'], outputshape['up7'], strides=2)
-    # Deconolution Layer
-    conv8 = conv2d_transpose(pool7, weights['wc3'],  biases['bc2'], outputshape['os8'])
-    # Pooling Up-sampling
-    pool8 = conv2d_transpose(conv8, weights['pl8'],  biases['bc2'], outputshape['up8'], strides=2)
-    # Deconolution Layer
-    conv9 = conv2d_transpose(pool8, weights['wc2'],  biases['bc1'], outputshape['os9'])
-    # Pooling Up-sampling
-    pool9 = conv2d_transpose(conv9, weights['pl9'],  biases['bc1'], outputshape['up9'], strides=2)
-
-    conv10 = conv2d_transpose(pool9, weights['wc1'], biases['bc0'],outputshape['os10'])
-
-
-    final = tf.transpose(conv10, (0,3,1,2))
-    out = tf.reshape
-    return out
-
-# Store layers weight & bias
-weights = {
-    'wc1': tf.Variable(tf.random_normal([4, 5, 1, 32])),
-    'wc2': tf.Variable(tf.random_normal([4, 5, 32, 64])),
-    'wc3': tf.Variable(tf.random_normal([4, 5, 64, 128])),
-    'wc4': tf.Variable(tf.random_normal([4, 5, 128, 256])),
-    'wc5': tf.Variable(tf.random_normal([4, 5, 256, 512])),
-    'wc6': tf.Variable(tf.random_normal([4, 5, 256, 512])),
-    'wc7': tf.Variable(tf.random_normal([4, 5, 128, 256])),
-    'wc8': tf.Variable(tf.random_normal([4, 5, 64, 128])),
-    'wc9': tf.Variable(tf.random_normal([4, 5, 32, 64])),
-    'wc10': tf.Variable(tf.random_normal([4, 5, 1, 32])),
-    'pl6': tf.Variable(tf.random_normal([2, 2, 256, 256])),
-    'pl7': tf.Variable(tf.random_normal([2, 2, 128, 128])),
-    'pl8': tf.Variable(tf.random_normal([2, 2, 64, 64])),
-    'pl9': tf.Variable(tf.random_normal([2, 2, 32, 32]))
-}
-outputshape = {
-    'os6': [BATCH_SIZE, 4, 5, 256],
-    'up6': [BATCH_SIZE, 8,10, 256],
-    'os7': [BATCH_SIZE, 8,10, 128],
-    'up7': [BATCH_SIZE,16,20, 128],
-    'os8': [BATCH_SIZE,16,20,  64],
-    'up8': [BATCH_SIZE,32,40,  64],
-    'os9': [BATCH_SIZE,32,40,  32],
-    'up9': [BATCH_SIZE,64,80,  32],
-    'os10':[BATCH_SIZE,64,80,   1]
-}
-biases = {
-    'bc0': tf.Variable(tf.random_normal([1])),
-    'bc1': tf.Variable(tf.random_normal([32])),
-    'bc2': tf.Variable(tf.random_normal([64])),
-    'bc3': tf.Variable(tf.random_normal([128])),
-    'bc4': tf.Variable(tf.random_normal([256])),
-    'bc5': tf.Variable(tf.random_normal([512])),
-}
-
-# Construct model
-y = tf.nn.softmax(conv_net(x, weights, biases, keep_prob))
+p_keep_conv = tf.placeholder("float")
+p_keep_hidden = tf.placeholder("float")
+py_x = model(X, w, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden)
 
 # Define loss and optimizer
-cost = dice_coef_loss(y_, y)
+cost = dice_coef_loss(py_x, Y)
 
-optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(cost)
+train_op  = tf.train.AdamOptimizer(0.0001).minimize(cost)
+predict_op = tf.argmax(py_x, 1)
 
-
-
-# Evaluate model
-correct_pred = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-
-predict = tf.argmax(y,1)
-# serve data by batches
-
-epochs_completed = 0
-index_in_epoch = 0
-
-num_examples =imgs_train.shape[0]
-def next_batch(BATCH_SIZE):
-
-    global imgs_train
-    global imgs_mask_train
-    global index_in_epoch
-    global epochs_completed
-    global num_examples
-
-    start = index_in_epoch
-    index_in_epoch += BATCH_SIZE
-
-    # when all trainig data have been already used, it is reorder randomly
-    if index_in_epoch > num_examples:
-        # finished epoch
-        epochs_completed += 1
-        # shuffle the data
-        perm = np.arange(num_examples)
-        np.random.shuffle(perm)
-        imgs_train = imgs_train[perm]
-        imgs_mask_train = imgs_mask_train[perm]
-        # start next epoch
-        start = 0
-        index_in_epoch = BATCH_SIZE
-        assert BATCH_SIZE <= num_examples
-    end = index_in_epoch
-    return imgs_train[start:end], imgs_mask_train[start:end]
-
-
-
-
-
-print('-'*30)
-print('Creating and compiling model...')
-print('-'*30)
-
-
-
-print('-'*30)
-print('Fitting model...')
-print('-'*30)
-init = tf.initialize_all_variables()
-sess = tf.InteractiveSession()
-
-sess.run(init)
-train_accuracies = []
-validation_accuracies = []
-x_range = []
-
-display_step=1
-
-for i in range(TRAINING_ITERATIONS):
-
-    #get new batch
-    batch_xs, batch_ys = next_batch(BATCH_SIZE)
-
-    # check progress on every 1st,2nd,...,10th,20th,...,100th... step
-    if i%display_step == 0 or (i+1) == TRAINING_ITERATIONS:
-
-        train_accuracy = accuracy.eval(feed_dict={x:batch_xs,
-                                                  y_: batch_ys,
-                                                  keep_prob: 1.0})
-        if(VALIDATION_SIZE):
-            validation_accuracy = accuracy.eval(feed_dict={ x: validation_images[0:BATCH_SIZE],
-                                                            y_: validation_labels[0:BATCH_SIZE],
-                                                            keep_prob: 1.0})
-            print('training_accuracy / validation_accuracy => %.2f / %.2f for step %d'%(train_accuracy, validation_accuracy, i))
-
-            validation_accuracies.append(validation_accuracy)
-            x_range.append(i)
-        else:
-             print('training_accuracy => %.4f for step %d'%(train_accuracy, i))
-        train_accuracies.append(train_accuracy)
-
-        # increase display_step
-        if i%(display_step*10) == 0 and i:
-            display_step *= 10
-    # train on batch
-    sess.run(optimizer, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: DROPOUT})
-# After training is done, it's good to check accuracy on data that wasn't used in training.
-# check final accuracy on validation set
-if(VALIDATION_SIZE):
-    validation_accuracy = accuracy.eval(feed_dict={x: validation_images,
-                                                   y_: validation_labels,
-                                                   keep_prob: 1.0})
-    print('validation_accuracy => %.4f'%validation_accuracy)
 
 print('-'*30)
 print('Loading and preprocessing test data...')
@@ -299,19 +121,24 @@ imgs_test = imgs_test.astype('float32')
 imgs_test -= mean
 imgs_test /= std
 
-print('-'*30)
-print('Predicting masks on test data...')
-print('-'*30)
-print('imgs_test({0[0]},{0[1]})'.format(imgs_test.shape))
+# Launch the graph in a session
+with tf.Session() as sess:
+    # you need to initialize all variables
+    tf.initialize_all_variables().run()
 
-#error occured
-imgs_mask_test = np.zeros(imgs_test.shape[0])
-imgs_mask_test = tf.reshape(imgs_mask_test,(-1, 1, img_rows, img_cols))
-for i in range(0,imgs_test.shape[0]//BATCH_SIZE):
-    imgs_mask_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE] = predict.eval(feed_dict={x: imgs_test[i*BATCH_SIZE : (i+1)*BATCH_SIZE], keep_prob: 1.0})
+    for i in range(100):
+        training_batch = zip(range(0, len(trX), batch_size),
+                             range(batch_size, len(trX), batch_size))
+        for start, end in training_batch:
+            sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end],
+                                          p_keep_conv: 0.8, p_keep_hidden: 0.5})
 
-print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
+        test_indices = np.arange(len(teX)) # Get A Test Batch
+        np.random.shuffle(test_indices)
+        test_indices = test_indices[0:test_size]
 
-np.save('imgs_mask_test.npy', imgs_mask_test)
-
-sess.close()
+        print(i, np.mean(np.argmax(teY[test_indices], axis=1) ==
+                         sess.run(predict_op, feed_dict={X: teX[test_indices],
+                                                         Y: teY[test_indices],
+                                                         p_keep_conv: 1.0,
+                                                         p_keep_hidden: 1.0})))

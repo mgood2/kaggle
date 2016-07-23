@@ -24,7 +24,7 @@ print('-'*30)
 model = Sequential()
 model.add(Dense(12, input_dim=8, init='uniform', activation='relu'))
 model.add(Dense(8, init='uniform', activation='relu'))
-model.add(Dense(2, init='uniform', activation='sigmoid'))
+model.add(Dense(1, init='uniform'))
 model.add(Activation('softmax'))
 
 # Compile model

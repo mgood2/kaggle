@@ -62,7 +62,7 @@ print('-'*30)
 predicted_lables = model.predict(X_test)
 
 np.savetxt('submission.csv',
-           np.c_[range(1,len(X_test)+1),predicted_lables[:,0]],
+           np.c_[range(1,len(X_test)+1),predicted_lables[0]],
            delimiter=',',
            header = '',
            comments = '',

@@ -316,4 +316,5 @@ print('imgs_mask_test({0})'.format(len(imgs_mask_test)))
 
 np.save('imgs_mask_test.npy', imgs_mask_test)
 
+
 sess.close()

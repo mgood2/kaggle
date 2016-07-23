@@ -27,7 +27,7 @@ model.add(Dense(1, init='uniform', activation='sigmoid'))
 
 # Compile model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-#save model to model.hdf5
+# save trained model to model.hdf5
 model_checkpoint = ModelCheckpoint('model.hdf5', monitor='loss', save_best_only=True)
 
 print('-'*30)
@@ -45,8 +45,17 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 print('-'*30)
 print('Loading test data...')
 print('-'*30)
-
+# load pima indians dataset
+dataset = np.loadtxt("pima-indians-diabetes-test.csv", delimiter=",")
+# split into input (X) and output (Y) variables
+X_test = dataset[:,0:8]
 
 print('-'*30)
 print('Loading saved weights...')
 print('-'*30)
+model.load_weights('model.hdf5')
+
+print('-'*30)
+print('Predicting test data...')
+print('-'*30)
+a = model.predict(X_test)

@@ -41,6 +41,5 @@ print(roc_auc_score(y, preds))
 # pick the best threshold out-of-fold
 thresholds = np.linspace(0.01, 0.99, 50)
 mcc = np.array([matthews_corrcoef(y, preds>thr) for thr in thresholds])
-plt.plot(thresholds, mcc)
 best_threshold = thresholds[mcc.argmax()]
 print(mcc.max())

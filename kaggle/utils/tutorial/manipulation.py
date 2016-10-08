@@ -29,3 +29,10 @@ i = ['a','b','c','d','e','f','g','h','i','j']
 df.index = i
 
 print df.loc['a']
+
+# df.loc[inclusive:inclusive]
+print df.loc['a':'d']
+
+# df.iloc[inclusive:exclusive]
+# Note: .iloc is strictly integer position based. It is available from [version 0.11.0] (http://pandas.pydata.org/pandas-docs/stable/whatsnew.html#v0-11-0-april-22-2013)
+print df.iloc[0:3]

@@ -16,7 +16,7 @@ X = X.values
 clf = XGBClassifier(base_score=0.005)
 clf.fit(X, y)
 
-
+important_indices = np.where(clf.feature_importances_>0.005)[0]
 # load entire dataset for these features.
 # note where the feature indices are split so we can load the correct ones straight from read_csv
 n_date_features = 1156

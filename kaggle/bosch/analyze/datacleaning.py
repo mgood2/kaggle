@@ -48,7 +48,7 @@ df = pd.DataFrame(data = BabyDataSet, columns=['Id', 'Response']
 
 
 # load test data
-X = np.concatenate([
+test_X = np.concatenate([
     pd.read_csv("../input/test_date.csv", index_col=0, dtype=np.float32,
                 usecols=np.concatenate([[0], important_indices[important_indices<1156]+1])).values,
     pd.read_csv("../input/test_numeric.csv", index_col=0, dtype=np.float32,
@@ -56,7 +56,7 @@ X = np.concatenate([
 ], axis=1)
 
 # generate predictions at the chosen threshold
-preds = (clf.predict_proba(X)[:,1] > best_threshold).astype(np.int8)
+preds = (clf.predict_proba(test_X)[:,1] > best_threshold).astype(np.int8)
 
 
 # and submit

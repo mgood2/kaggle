@@ -43,3 +43,28 @@ thresholds = np.linspace(0.01, 0.99, 50)
 mcc = np.array([matthews_corrcoef(y, preds>thr) for thr in thresholds])
 best_threshold = thresholds[mcc.argmax()]
 print(mcc.max())
+
+df = pd.DataFrame(data = BabyDataSet, columns=['Id', 'Response']
+
+
+# load test data
+X = np.concatenate([
+    pd.read_csv("../input/test_date.csv", index_col=0, dtype=np.float32,
+                usecols=np.concatenate([[0], important_indices[important_indices<1156]+1])).values,
+    pd.read_csv("../input/test_numeric.csv", index_col=0, dtype=np.float32,
+                usecols=np.concatenate([[0], important_indices[important_indices>=1156] +1 - 1156])).values
+], axis=1)
+
+# generate predictions at the chosen threshold
+preds = (clf.predict_proba(X)[:,1] > best_threshold).astype(np.int8)
+
+
+# and submit
+location = '../Submission/'
+import time
+timestr = time.strftime("%Y%m%d-%H%M%S")
+filename = location + 'sub-' + timestr + '.csv.gz'
+
+sub = pd.read_csv("../input/sample_submission.csv", index_col=0)
+sub["Response"] = preds
+sub.to_csv(filename, compression="gzip")

@@ -44,9 +44,6 @@ mcc = np.array([matthews_corrcoef(y, preds>thr) for thr in thresholds])
 best_threshold = thresholds[mcc.argmax()]
 print(mcc.max())
 
-df = pd.DataFrame(data = BabyDataSet, columns=['Id', 'Response']
-
-
 # load test data
 test_X = np.concatenate([
     pd.read_csv("../input/test_date.csv", index_col=0, dtype=np.float32,

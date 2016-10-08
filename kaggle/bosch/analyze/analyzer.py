@@ -5,7 +5,7 @@ import sys
 
 
 
-Location = r'C:/Users/elee/Documents/workspace/kaggle/kaggle/bosch/Data/train_date.csv'
+Location = r'../Data/train_date.csv'
 df = pd.read_csv(Location)
 
 print df.head()

@@ -46,9 +46,9 @@ print(mcc.max())
 
 # load test data
 test_X = np.concatenate([
-    pd.read_csv("../input/test_date.csv", index_col=0, dtype=np.float32,
+    pd.read_csv("../Data/test_date.csv", index_col=0, dtype=np.float32,
                 usecols=np.concatenate([[0], important_indices[important_indices<1156]+1])).values,
-    pd.read_csv("../input/test_numeric.csv", index_col=0, dtype=np.float32,
+    pd.read_csv("../Data/test_numeric.csv", index_col=0, dtype=np.float32,
                 usecols=np.concatenate([[0], important_indices[important_indices>=1156] +1 - 1156])).values
 ], axis=1)
 
@@ -62,6 +62,6 @@ import time
 timestr = time.strftime("%Y%m%d-%H%M%S")
 filename = location + 'sub-' + timestr + '.csv.gz'
 
-sub = pd.read_csv("../input/sample_submission.csv", index_col=0)
+sub = pd.read_csv("../Data/sample_submission.csv", index_col=0)
 sub["Response"] = preds
 sub.to_csv(filename, compression="gzip")

@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 
-DATA_DIR = "../input"
+DATA_DIR = "../Data"
 
 ID_COLUMN = 'Id'
 TARGET_COLUMN = 'Response'

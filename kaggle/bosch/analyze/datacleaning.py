@@ -30,7 +30,7 @@ y = pd.read_csv("../Data/train_numeric.csv", index_col=0, dtype=np.float32, usec
 
 
 clf = XGBClassifier(max_depth=5, base_score=0.005)
-cv = StratifiedKFold(y, n_folds=5)
+cv = StratifiedKFold(y, n_folds=3)
 preds = np.ones(y.shape[0])
 for i, (train, test) in enumerate(cv):
     preds[test] = clf.fit(X[train], y[train]).predict_proba(X[test])[:,1]

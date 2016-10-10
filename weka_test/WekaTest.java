@@ -104,6 +104,5 @@ public class WekaTest {
 					+ String.format("%.2f%%", accuracy)
 					+ "\n---------------------------------");
 		}
- 
 	}
 }

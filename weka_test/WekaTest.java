@@ -59,7 +59,7 @@ public class WekaTest {
 	}
  
 	public static void main(String[] args) throws Exception {
-		BufferedReader datafile = readDataFile("weather.txt");
+		BufferedReader datafile = readDataFile("pima-indians-diabetes.arff");
  
 		Instances data = new Instances(datafile);
 		data.setClassIndex(data.numAttributes() - 1);
